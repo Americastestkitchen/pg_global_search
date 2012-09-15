@@ -109,7 +109,11 @@ module PgGlobalSearch
       fields ||= []
 
       fields.map do |field|
-        "SELECT #{model.table_name}.#{field} AS term, #{model.table_name}.#{model.primary_key} AS searchable_id, CAST ('#{model.name}' AS varchar) AS searchable_type FROM #{model.table_name}"
+        sql = "SELECT #{model.table_name}.#{field} AS term, #{model.table_name}.#{model.primary_key} AS searchable_id, CAST ('#{model.name}' AS varchar) AS searchable_type FROM #{model.table_name}"
+        if model.finder_needs_type_condition?
+          sql << " WHERE #{model.table_name}.type = '#{model.sti_name}'"
+        end
+        sql
       end
     end
 
